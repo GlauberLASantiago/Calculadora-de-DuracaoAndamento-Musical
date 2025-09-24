@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Musical Avançada</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .tab-btn.active {
+            background-color: #C87F8B;
+            color: white;
+        }
+        .tab-btn {
+            transition: background-color 0.3s, color 0.3s;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'fundo-claro': '#E7F0C7',
+                        'verde-claro': '#BCDFB9',
+                        'rosa-muted': '#C87F8B',
+                        'laranja-claro': '#E9A97F',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-fundo-claro flex items-center justify-center min-h-screen p-4">
+
+    <!-- Card Principal -->
+    <div class="bg-white w-full max-w-md p-8 rounded-2xl shadow-lg transform transition-all hover:shadow-2xl">
+        
+        <!-- Cabeçalho -->
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Calculadora Musical</h1>
+            <p class="text-gray-500 mt-2">Calcule a duração ou o andamento da sua música.</p>
+        </div>
+
+        <!-- Seletor de Modo -->
+        <div class="flex bg-gray-100 rounded-xl p-1 mb-6">
+            <button id="modeDurationBtn" class="tab-btn w-1/2 p-2 rounded-lg font-semibold active">Calcular Duração</button>
+            <button id="modeTempoBtn" class="tab-btn w-1/2 p-2 rounded-lg font-semibold">Calcular Andamento</button>
+        </div>
+
+        <!-- Formulário de Inputs -->
+        <div id="calculator-forms">
+            <!-- Modo: Calcular Duração -->
+            <div id="formDuration" class="space-y-6">
+                <div>
+                    <label for="tempo" class="block text-sm font-medium text-gray-700 mb-1">Andamento (BPM)</label>
+                    <input type="number" id="tempo" placeholder="Ex: 120" class="w-full px-4 py-3 bg-gray-50 border-2 border-verde-claro rounded-xl focus:ring-2 focus:ring-laranja-claro focus:border-laranja-claro transition duration-300">
+                </div>
+                <div>
+                    <label for="tempos_compasso_duration" class="block text-sm font-medium text-gray-700 mb-1">Tempos por Compasso</label>
+                    <input type="number" id="tempos_compasso_duration" placeholder="Ex: 4" class="w-full px-4 py-3 bg-gray-50 border-2 border-verde-claro rounded-xl focus:ring-2 focus:ring-laranja-claro focus:border-laranja-claro transition duration-300">
+                </div>
+                <div>
+                    <label for="compassos_duration" class="block text-sm font-medium text-gray-700 mb-1">Quantidade de Compassos</label>
+                    <input type="number" id="compassos_duration" placeholder="Ex: 100" class="w-full px-4 py-3 bg-gray-50 border-2 border-verde-claro rounded-xl focus:ring-2 focus:ring-laranja-claro focus:border-laranja-claro transition duration-300">
+                </div>
+            </div>
+
+            <!-- Modo: Calcular Andamento -->
+            <div id="formTempo" class="space-y-6 hidden">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="minutos" class="block text-sm font-medium text-gray-700 mb-1">Minutos</label>
+                        <input type="number" id="minutos" placeholder="Ex: 3" class="w-full px-4 py-3 bg-gray-50 border-2 border-verde-claro rounded-xl focus:ring-2 focus:ring-laranja-claro focus:border-laranja-claro transition duration-300">
+                    </div>
+                    <div>
+                        <label for="segundos" class="block text-sm font-medium text-gray-700 mb-1">Segundos</label>
+                        <input type="number" id="segundos" placeholder="Ex: 30" class="w-full px-4 py-3 bg-gray-50 border-2 border-verde-claro rounded-xl focus:ring-2 focus:ring-laranja-claro focus:border-laranja-claro transition duration-300">
+                    </div>
+                </div>
+                <div>
+                    <label for="tempos_compasso_tempo" class="block text-sm font-medium text-gray-700 mb-1">Tempos por Compasso</label>
+                    <input type="number" id="tempos_compasso_tempo" placeholder="Ex: 4" class="w-full px-4 py-3 bg-gray-50 border-2 border-verde-claro rounded-xl focus:ring-2 focus:ring-laranja-claro focus:border-laranja-claro transition duration-300">
+                </div>
+                <div>
+                    <label for="compassos_tempo" class="block text-sm font-medium text-gray-700 mb-1">Quantidade de Compassos</label>
+                    <input type="number" id="compassos_tempo" placeholder="Ex: 100" class="w-full px-4 py-3 bg-gray-50 border-2 border-verde-claro rounded-xl focus:ring-2 focus:ring-laranja-claro focus:border-laranja-claro transition duration-300">
+                </div>
+            </div>
+        </div>
+
+        <!-- Botão de Calcular -->
+        <div class="mt-8">
+            <button id="calculateBtn" class="w-full bg-rosa-muted text-white font-bold py-3 px-4 rounded-xl hover:bg-opacity-90 transform hover:-translate-y-1 transition-all duration-300 shadow-md">
+                Calcular Duração
+            </button>
+        </div>
+        
+        <!-- Área do Resultado -->
+        <div id="result-container" class="mt-8 text-center bg-verde-claro p-6 rounded-2xl hidden">
+            <p id="result-label" class="text-sm font-medium text-gray-700">Duração total estimada:</p>
+            <p id="result" class="text-5xl font-bold text-gray-900 tracking-wider">00:00</p>
+        </div>
+
+        <!-- Mensagem de Erro -->
+        <div id="error-message" class="mt-4 text-center text-red-600 font-medium hidden">
+            Por favor, preencha todos os campos com valores válidos.
+        </div>
+
+        <!-- Créditos -->
+        <div class="text-center text-xs text-gray-400 mt-8 border-t pt-4">
+            <p>Vide code por Glauber Santiago (UFSCar) 2025</p>
+            <a href="https://sites.google.com/view/glauberia" target="_blank" rel="noopener noreferrer" class="text-rosa-muted hover:underline">GlauberIA</a>
+        </div>
+    </div>
+
+    <script>
+        // Elementos Globais
+        const calculateBtn = document.getElementById('calculateBtn');
+        const resultContainer = document.getElementById('result-container');
+        const resultLabel = document.getElementById('result-label');
+        const resultDiv = document.getElementById('result');
+        const errorMessageDiv = document.getElementById('error-message');
+
+        // Elementos dos Modos
+        const modeDurationBtn = document.getElementById('modeDurationBtn');
+        const modeTempoBtn = document.getElementById('modeTempoBtn');
+        const formDuration = document.getElementById('formDuration');
+        const formTempo = document.getElementById('formTempo');
+        let currentMode = 'duration'; // 'duration' ou 'tempo'
+
+        // Inputs do modo Duração
+        const tempoInput = document.getElementById('tempo');
+        const temposCompassoDurationInput = document.getElementById('tempos_compasso_duration');
+        const compassosDurationInput = document.getElementById('compassos_duration');
+
+        // Inputs do modo Andamento
+        const minutosInput = document.getElementById('minutos');
+        const segundosInput = document.getElementById('segundos');
+        const temposCompassoTempoInput = document.getElementById('tempos_compasso_tempo');
+        const compassosTempoInput = document.getElementById('compassos_tempo');
+
+        // Função para trocar de modo
+        function switchMode(newMode) {
+            currentMode = newMode;
+            // Limpa resultados e erros
+            resultContainer.classList.add('hidden');
+            errorMessageDiv.classList.add('hidden');
+
+            if (newMode === 'duration') {
+                // Ativa modo Duração
+                formTempo.classList.add('hidden');
+                formDuration.classList.remove('hidden');
+                modeDurationBtn.classList.add('active');
+                modeTempoBtn.classList.remove('active');
+                calculateBtn.textContent = 'Calcular Duração';
+            } else {
+                // Ativa modo Andamento
+                formDuration.classList.add('hidden');
+                formTempo.classList.remove('hidden');
+                modeTempoBtn.classList.add('active');
+                modeDurationBtn.classList.remove('active');
+                calculateBtn.textContent = 'Calcular Andamento';
+            }
+        }
+
+        // Event Listeners para trocar de modo
+        modeDurationBtn.addEventListener('click', () => switchMode('duration'));
+        modeTempoBtn.addEventListener('click', () => switchMode('tempo'));
+
+        // Event Listener do Botão Principal
+        calculateBtn.addEventListener('click', () => {
+            errorMessageDiv.classList.add('hidden');
+            if (currentMode === 'duration') {
+                calculateDuration();
+            } else {
+                calculateTempo();
+            }
+        });
+
+        function calculateDuration() {
+            const bpm = parseFloat(tempoInput.value);
+            const beatsPerMeasure = parseFloat(temposCompassoDurationInput.value);
+            const measures = parseFloat(compassosDurationInput.value);
+
+            if (isNaN(bpm) || isNaN(beatsPerMeasure) || isNaN(measures) || bpm <= 0 || beatsPerMeasure <= 0 || measures <= 0) {
+                showError();
+                return;
+            }
+
+            const totalBeats = beatsPerMeasure * measures;
+            const totalSeconds = (totalBeats / bpm) * 60;
+
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = Math.round(totalSeconds % 60);
+
+            const formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
+            const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+
+            resultLabel.textContent = 'Duração total estimada:';
+            resultDiv.textContent = `${formattedMinutes}:${formattedSeconds}`;
+            resultContainer.classList.remove('hidden');
+        }
+
+        function calculateTempo() {
+            const minutes = parseFloat(minutosInput.value) || 0;
+            const seconds = parseFloat(segundosInput.value) || 0;
+            const beatsPerMeasure = parseFloat(temposCompassoTempoInput.value);
+            const measures = parseFloat(compassosTempoInput.value);
+            
+            const totalSeconds = (minutes * 60) + seconds;
+
+            if (isNaN(beatsPerMeasure) || isNaN(measures) || totalSeconds <= 0 || beatsPerMeasure <= 0 || measures <= 0) {
+                showError();
+                return;
+            }
+
+            const totalBeats = beatsPerMeasure * measures;
+            const bpm = (totalBeats / totalSeconds) * 60;
+
+            resultLabel.textContent = 'Andamento (BPM) necessário:';
+            resultDiv.textContent = `${bpm.toFixed(1)}`;
+            resultContainer.classList.remove('hidden');
+        }
+
+        function showError() {
+            errorMessageDiv.classList.remove('hidden');
+            resultContainer.classList.add('hidden');
+        }
+
+    </script>
+</body>
+</html>
+
