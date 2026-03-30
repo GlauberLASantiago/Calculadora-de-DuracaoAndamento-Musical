@@ -11,13 +11,101 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a0533 0%, #0d2b4e 40%, #0a3d38 100%);
+            min-height: 100vh;
+        }
+
+        /* Decorative blurred orbs for depth */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.35;
+            pointer-events: none;
+            z-index: 0;
+        }
+        body::before {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #C87F8B, #7b2d8b);
+            top: -120px;
+            left: -120px;
+        }
+        body::after {
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, #3b9e8a, #1a6688);
+            bottom: -120px;
+            right: -120px;
+        }
+
+        /* Glassmorphism card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.10);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.20);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.40), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+
+        /* Glassmorphism input fields */
+        .glass-input {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #f0f4ff;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .glass-input::placeholder {
+            color: rgba(200, 210, 255, 0.45);
+        }
+        .glass-input:focus {
+            outline: none;
+            border-color: rgba(200, 127, 139, 0.75);
+            box-shadow: 0 0 0 3px rgba(200, 127, 139, 0.22);
+            background: rgba(255, 255, 255, 0.13);
+        }
+
+        /* Tab selector */
+        .tab-selector {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .tab-btn {
+            color: rgba(220, 230, 255, 0.70);
+            transition: background-color 0.3s, color 0.3s;
         }
         .tab-btn.active {
             background-color: #C87F8B;
             color: white;
+            box-shadow: 0 2px 12px rgba(200, 127, 139, 0.45);
         }
-        .tab-btn {
-            transition: background-color 0.3s, color 0.3s;
+
+        /* Result box */
+        .glass-result {
+            background: rgba(188, 223, 185, 0.15);
+            border: 1px solid rgba(188, 223, 185, 0.35);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        /* Calculate button */
+        .calc-btn {
+            background: linear-gradient(135deg, #C87F8B, #a05a7a);
+            box-shadow: 0 4px 18px rgba(200, 127, 139, 0.45);
+            transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+        }
+        .calc-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(200, 127, 139, 0.60);
+            filter: brightness(1.08);
+        }
+
+        /* Footer glass strip */
+        .glass-footer {
+            background: rgba(255, 255, 255, 0.07);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
         }
     </style>
     <script>
@@ -25,29 +113,26 @@
             theme: {
                 extend: {
                     colors: {
-                        'fundo-claro': '#E7F0C7',
-                        'verde-claro': '#BCDFB9',
                         'rosa-muted': '#C87F8B',
-                        'laranja-claro': '#E9A97F',
                     }
                 }
             }
         }
     </script>
 </head>
-<body class="bg-fundo-claro flex items-center justify-center min-h-screen p-4">
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
 
     <!-- Card Principal -->
-    <div class="bg-white w-full max-w-md p-8 rounded-2xl shadow-lg transform transition-all hover:shadow-2xl">
+    <div class="glass-card w-full max-w-md p-8 rounded-2xl relative z-10">
         
         <!-- Cabeçalho -->
         <div class="text-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Calculadora Musical</h1>
-            <p class="text-gray-500 mt-2">Calcule a duração ou o andamento da sua música.</p>
+            <h1 class="text-3xl font-bold text-white drop-shadow">Calculadora Musical</h1>
+            <p class="text-blue-100 text-opacity-75 mt-2">Calcule a duração ou o andamento da sua música.</p>
         </div>
 
         <!-- Seletor de Modo -->
-        <div class="flex bg-gray-100 rounded-xl p-1 mb-6">
+        <div class="flex tab-selector rounded-xl p-1 mb-6">
             <button id="modeDurationBtn" class="tab-btn w-1/2 p-2 rounded-lg font-semibold active">Calcular Duração</button>
             <button id="modeTempoBtn" class="tab-btn w-1/2 p-2 rounded-lg font-semibold">Calcular Andamento</button>
         </div>
@@ -57,16 +142,16 @@
             <!-- Modo: Calcular Duração -->
             <div id="formDuration" class="space-y-6">
                 <div>
-                    <label for="tempo" class="block text-sm font-medium text-gray-700 mb-1">Andamento (BPM)</label>
-                    <input type="number" id="tempo" placeholder="Ex: 120" class="w-full px-4 py-3 bg-gray-50 border-2 border-verde-claro rounded-xl focus:ring-2 focus:ring-laranja-claro focus:border-laranja-claro transition duration-300">
+                    <label for="tempo" class="block text-sm font-medium text-blue-100 mb-1">Andamento (BPM)</label>
+                    <input type="number" id="tempo" placeholder="Ex: 120" class="glass-input w-full px-4 py-3 rounded-xl">
                 </div>
                 <div>
-                    <label for="tempos_compasso_duration" class="block text-sm font-medium text-gray-700 mb-1">Tempos por Compasso</label>
-                    <input type="number" id="tempos_compasso_duration" placeholder="Ex: 4" class="w-full px-4 py-3 bg-gray-50 border-2 border-verde-claro rounded-xl focus:ring-2 focus:ring-laranja-claro focus:border-laranja-claro transition duration-300">
+                    <label for="tempos_compasso_duration" class="block text-sm font-medium text-blue-100 mb-1">Tempos por Compasso</label>
+                    <input type="number" id="tempos_compasso_duration" placeholder="Ex: 4" class="glass-input w-full px-4 py-3 rounded-xl">
                 </div>
                 <div>
-                    <label for="compassos_duration" class="block text-sm font-medium text-gray-700 mb-1">Quantidade de Compassos</label>
-                    <input type="number" id="compassos_duration" placeholder="Ex: 100" class="w-full px-4 py-3 bg-gray-50 border-2 border-verde-claro rounded-xl focus:ring-2 focus:ring-laranja-claro focus:border-laranja-claro transition duration-300">
+                    <label for="compassos_duration" class="block text-sm font-medium text-blue-100 mb-1">Quantidade de Compassos</label>
+                    <input type="number" id="compassos_duration" placeholder="Ex: 100" class="glass-input w-full px-4 py-3 rounded-xl">
                 </div>
             </div>
 
@@ -74,49 +159,53 @@
             <div id="formTempo" class="space-y-6 hidden">
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label for="minutos" class="block text-sm font-medium text-gray-700 mb-1">Minutos</label>
-                        <input type="number" id="minutos" placeholder="Ex: 3" class="w-full px-4 py-3 bg-gray-50 border-2 border-verde-claro rounded-xl focus:ring-2 focus:ring-laranja-claro focus:border-laranja-claro transition duration-300">
+                        <label for="minutos" class="block text-sm font-medium text-blue-100 mb-1">Minutos</label>
+                        <input type="number" id="minutos" placeholder="Ex: 3" class="glass-input w-full px-4 py-3 rounded-xl">
                     </div>
                     <div>
-                        <label for="segundos" class="block text-sm font-medium text-gray-700 mb-1">Segundos</label>
-                        <input type="number" id="segundos" placeholder="Ex: 30" class="w-full px-4 py-3 bg-gray-50 border-2 border-verde-claro rounded-xl focus:ring-2 focus:ring-laranja-claro focus:border-laranja-claro transition duration-300">
+                        <label for="segundos" class="block text-sm font-medium text-blue-100 mb-1">Segundos</label>
+                        <input type="number" id="segundos" placeholder="Ex: 30" class="glass-input w-full px-4 py-3 rounded-xl">
                     </div>
                 </div>
                 <div>
-                    <label for="tempos_compasso_tempo" class="block text-sm font-medium text-gray-700 mb-1">Tempos por Compasso</label>
-                    <input type="number" id="tempos_compasso_tempo" placeholder="Ex: 4" class="w-full px-4 py-3 bg-gray-50 border-2 border-verde-claro rounded-xl focus:ring-2 focus:ring-laranja-claro focus:border-laranja-claro transition duration-300">
+                    <label for="tempos_compasso_tempo" class="block text-sm font-medium text-blue-100 mb-1">Tempos por Compasso</label>
+                    <input type="number" id="tempos_compasso_tempo" placeholder="Ex: 4" class="glass-input w-full px-4 py-3 rounded-xl">
                 </div>
                 <div>
-                    <label for="compassos_tempo" class="block text-sm font-medium text-gray-700 mb-1">Quantidade de Compassos</label>
-                    <input type="number" id="compassos_tempo" placeholder="Ex: 100" class="w-full px-4 py-3 bg-gray-50 border-2 border-verde-claro rounded-xl focus:ring-2 focus:ring-laranja-claro focus:border-laranja-claro transition duration-300">
+                    <label for="compassos_tempo" class="block text-sm font-medium text-blue-100 mb-1">Quantidade de Compassos</label>
+                    <input type="number" id="compassos_tempo" placeholder="Ex: 100" class="glass-input w-full px-4 py-3 rounded-xl">
                 </div>
             </div>
         </div>
 
         <!-- Botão de Calcular -->
         <div class="mt-8">
-            <button id="calculateBtn" class="w-full bg-rosa-muted text-white font-bold py-3 px-4 rounded-xl hover:bg-opacity-90 transform hover:-translate-y-1 transition-all duration-300 shadow-md">
+            <button id="calculateBtn" class="calc-btn w-full text-white font-bold py-3 px-4 rounded-xl">
                 Calcular Duração
             </button>
         </div>
         
         <!-- Área do Resultado -->
-        <div id="result-container" class="mt-8 text-center bg-verde-claro p-6 rounded-2xl hidden">
-            <p id="result-label" class="text-sm font-medium text-gray-700">Duração total estimada:</p>
-            <p id="result" class="text-5xl font-bold text-gray-900 tracking-wider">00:00</p>
+        <div id="result-container" class="mt-8 text-center glass-result p-6 rounded-2xl hidden">
+            <p id="result-label" class="text-sm font-medium text-blue-100">Duração total estimada:</p>
+            <p id="result" class="text-5xl font-bold text-white tracking-wider drop-shadow">00:00</p>
         </div>
 
         <!-- Mensagem de Erro -->
-        <div id="error-message" class="mt-4 text-center text-red-600 font-medium hidden">
+        <div id="error-message" class="mt-4 text-center text-red-300 font-medium hidden">
             Por favor, preencha todos os campos com valores válidos.
         </div>
-
-        <!-- Créditos -->
-        <div class="text-center text-xs text-gray-400 mt-8 border-t pt-4">
-            <p>Vibe code: Glauber Santiago (UFSCar) 2025</p>
-            <a href="https://sites.google.com/view/glauberia" target="_blank" rel="noopener noreferrer" class="text-rosa-muted hover:underline">GlauberIA</a>
-        </div>
     </div>
+
+    <!-- Rodapé -->
+    <footer class="glass-footer w-full max-w-md mt-4 px-6 py-4 rounded-2xl text-center relative z-10">
+        <p class="text-blue-100 text-sm font-medium">Elaborado pelo professor Glauber Santiago — DAC/UFSCar.</p>
+        <div class="flex justify-center gap-4 mt-2 text-xs">
+            <a href="https://servidores.ufscar.br/glauber/" target="_blank" rel="noopener noreferrer" class="text-rosa-muted hover:text-white transition-colors duration-200 hover:underline">servidores.ufscar.br/glauber/</a>
+            <span class="text-blue-200 opacity-40">·</span>
+            <a href="https://sites.google.com/view/glauberia" target="_blank" rel="noopener noreferrer" class="text-rosa-muted hover:text-white transition-colors duration-200 hover:underline">sites.google.com/view/glauberia</a>
+        </div>
+    </footer>
 
     <script>
         // Elementos Globais
